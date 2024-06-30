@@ -1,5 +1,6 @@
 import {
   setProducts,
+  setProduct,
   setLoading,
   setError,
   setPagination,
@@ -16,15 +17,7 @@ export const getProducts = (page, favouriteToggle) => async (dispatch) => {
     dispatch(setProducts(products));
     dispatch(setPagination(pagination));
   } catch (error) {
-    dispatch(
-      setError(
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message
-          ? error.message
-          : 'Произошла непредвиденная ошибка. Пожалуйста, повторите попытку позже.'
-      )
-    );
+    dispatch(setError(messageError(error)));
   }
 };
 
@@ -60,4 +53,22 @@ export const toggleFavorites = (toggle) => async (dispatch, getState) => {
     dispatch(setFavoritesToggle(false));
     dispatch(getProducts(1));
   }
+};
+
+export const getProduct = (id) => async (dispatch) => {
+  dispatch(setLoading(true));
+  try {
+    const { data } = await axios.get(`/api/products/${id}`);
+    dispatch(setProduct(data));
+  } catch (error) {
+    dispatch(setError(messageError(error)));
+  }
+};
+
+const messageError = (error) => {
+  return error.response && error.response.data.message
+    ? error.response.data.message
+    : error.message
+    ? error.message
+    : 'Произошла непредвиденная ошибка. Пожалуйста, повторите попытку позже.';
 };
